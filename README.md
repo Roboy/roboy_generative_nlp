@@ -23,7 +23,7 @@ Code for reproducing main results in the paper [A Neural Conversational Model](h
 2. Preprocess and filter raw dataset using
 
     ```
-    python data/data_preprocess.py --file_path Datasets/squad/squad.txt --output_dir Datasets/squad/
+    python data/data_preprocess.py --file_path Datasets/squad/squad.txt --output_dir Datasets/squad/processed
     ```
     The data is filtered by removing too long or too short sequences, only keeping the most frequent vocab size(8000) words from the data. the data is saved as q ids & a ids & meta data holding words.
 
