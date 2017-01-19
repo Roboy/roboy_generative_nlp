@@ -278,8 +278,8 @@ if __name__ == '__main__':
     parser.add_argument('--vocab_size', help = 'Vocab size', type = int, default = 8000)
     parser.add_argument('--q_max_size', help = 'Question max size', type = int, default = 25)
     parser.add_argument('--q_min_size', help = 'Question min size', type = int, default = 2)
-    parser.add_argument('--a_max_size', help = 'Answer max size', type = int, default = 25)
-    parser.add_argument('--a_min_size', help = 'Answer min size', type = int, default = 2)
+    parser.add_argument('--a_max_size', help = 'Answer max size', type = int, default = 15)
+    parser.add_argument('--a_min_size', help = 'Answer min size', type = int, default = 1)
     
     FLAGS, unparsed = parser.parse_known_args()
 

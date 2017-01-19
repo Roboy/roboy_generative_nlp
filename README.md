@@ -23,7 +23,7 @@ Code for reproducing main results in the paper [A Neural Conversational Model](h
 2. Preprocess and filter raw dataset using
 
     ```
-    python data/data_preprocess.py --file_path Datasets/squad/squad.txt --output_dir Datasets/squad/processed
+    python data/data_preprocess.py --file_path Datasets/squad/squad.txt --output_dir Datasets/squad/processed and pass in params
     ```
     The data is filtered by removing too long or too short sequences, only keeping the most frequent vocab size(8000) words from the data. the data is saved as q ids & a ids & meta data holding words.
 
@@ -32,7 +32,7 @@ Code for reproducing main results in the paper [A Neural Conversational Model](h
 - To train Seq2Seq run `seq2seq_train` passing processed dataset dir and checkpoint dir (to save model)
    
     ```
-    python seq2seq_train.py --dataset_dir Datasets/squad --ckpt_dir Datasets/squad/checkpoints
+    python seq2seq_train.py --dataset_dir Datasets/squad --ckpt_dir Datasets/squad/checkpoints and pass in params
     ```
 
 
@@ -40,7 +40,7 @@ Code for reproducing main results in the paper [A Neural Conversational Model](h
 - To evaluate Seq2Seq run `seq2seq_eval` passing processed dataset dir and checkpoint dir (to load model)
 
     ```
-    python seq2seq_eval.py --dataset_dir Datasets/squad --ckpt_dir Datasets/squad/checkpoints
+    python seq2seq_eval.py --dataset_dir Datasets/squad --ckpt_dir Datasets/squad/checkpoints and pass in params
     ```
 
 
@@ -48,7 +48,7 @@ Code for reproducing main results in the paper [A Neural Conversational Model](h
 - To test Seq2Seq with cmd run `seq2seq_predict` passing processed dataset dir and checkpoint dir (to load model)
 
     ```
-    python seq2seq_predict.py --dataset_dir Datasets/squad --ckpt_dir Datasets/squad/checkpoints
+    python seq2seq_predict.py --dataset_dir Datasets/squad --ckpt_dir Datasets/squad/checkpoints and pass in params
     ```
 
 
