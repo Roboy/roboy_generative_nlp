@@ -213,7 +213,6 @@ class Seq2Seq(object):
                     # print stats
                     print('[PROGRESS]\tModel saved to disk at iteration #{}'.format(i))
                     print('[PROGRESS]\tVal loss : {0:.6f}'.format(val_loss))
-                    sys.stdout.flush()
             except KeyboardInterrupt:
                 print('[WARNING ]\tInterrupted by user at iteration {}'.format(i))
                 self.session = sess
