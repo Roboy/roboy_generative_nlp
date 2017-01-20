@@ -9,7 +9,7 @@ from __future__ import print_function
 
 import tensorflow as tf
 import numpy as np
-
+import os.path
 
 class Seq2Seq(object):
 
@@ -205,9 +205,9 @@ class Seq2Seq(object):
         for i in range(self.epochs):
             try:
                 self.train_batch(sess, train_set)
-                if i and i% (self.epochs//100) == 0:
+                if i and i % (self.epochs//100) == 0:
                     # save model to disk
-                    saver.save(sess, self.ckpt_path + self.model_name + '.ckpt', global_step = i)
+                    saver.save(sess, os.path.join(self.ckpt_path, self.model_name) + '.ckpt', global_step = i)
                     # evaluate to get validation loss
                     val_loss = self.eval_batches(sess, valid_set, 16)
                     # print stats
@@ -236,6 +236,7 @@ class Seq2Seq(object):
         ckpt = tf.train.get_checkpoint_state(self.ckpt_path)
         # restore session
         if ckpt and ckpt.model_checkpoint_path:
+            print('[INFO    ]\tRestoring latest session..')
             saver.restore(sess, ckpt.model_checkpoint_path)
 
         # return to user

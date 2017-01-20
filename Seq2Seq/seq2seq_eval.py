@@ -44,7 +44,7 @@ def evaluate():
                             num_layers = FLAGS.num_layers)
 
     # load trained model from latest checkpoint
-    files = glob.glob(os.path.join(FLAGS.ckpt_dir, '*.ckpt'))
+    files = glob.glob(os.path.join(FLAGS.ckpt_dir, '*'))
 
     if len(files) is not 0:
         sess = model.restore_last_session()
@@ -67,7 +67,7 @@ def evaluate():
 
         if decoded.count('unk') == 0:
             if decoded not in replies:
-                print('q : [{0}]; a : [{1}]'.format(q, ' '.join(decoded)))
+                print('q : [{0}];\na : [{1}]\n'.format(q, ' '.join(decoded)))
                 replies.append(decoded)
 
 

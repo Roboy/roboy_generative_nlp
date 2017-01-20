@@ -45,7 +45,7 @@ def predict():
                             num_layers = FLAGS.num_layers)
 
     # load trained model from latest checkpoint
-    files = glob.glob(os.path.join(FLAGS.ckpt_dir, '*.ckpt'))
+    files = glob.glob(os.path.join(FLAGS.ckpt_dir, '*'))
 
     if len(files) is not 0:
         sess = model.restore_last_session()
@@ -64,10 +64,11 @@ def predict():
             break
 
         encoded_message = data_utils.encode(text = user_message, lookup = metadata['w2idx'], maxlen = int(metadata['q_max']))
-        
+        encoded_message = np.array(encoded_message).reshape((len(encoded_message), 1))
+
         response = model.predict(sess, encoded_message)
 
-        decoded_response = data_utils.decode(sequence = response, lookup = metadata['idx2w'], separator = ' ')
+        decoded_response = data_utils.decode(sequence = response[0], lookup = metadata['idx2w'], separator = ' ')
 
         print(u"< %s" % decoded_response)
 
