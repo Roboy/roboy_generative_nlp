@@ -42,7 +42,8 @@ def predict():
                             yvocab_size = yvocab_size,
                             ckpt_path = FLAGS.ckpt_dir,
                             emb_dim = FLAGS.emb_dim,
-                            num_layers = FLAGS.num_layers)
+                            num_layers = FLAGS.num_layers,
+                            lr = FLAGS.lr)
 
     # load trained model from latest checkpoint
     files = glob.glob(os.path.join(FLAGS.ckpt_dir, '*'))
@@ -63,13 +64,12 @@ def predict():
         if user_message == "exit":
             break
 
-        # encode input message
+        # # encode input message
         encoded_message  = data_utils.encode(user_message, metadata['w2idx'], int(metadata['q_max']))
         encoded_message  = np.array(encoded_message).reshape((len(encoded_message), 1))
-        # decode output response
+        # # decode output response
         response         = model.predict(sess, encoded_message)
-        decoded_response = data_utils.decode(response[0], metadata['idx2w'])
-
+        decoded_response = data_utils.decode(response[0], metadata['idx2w'], separator = ' ')
         print(u"< %s" % decoded_response)
 
 
@@ -87,6 +87,7 @@ if __name__ == '__main__':
     parser.add_argument('--dataset_dir', help = 'Proccesed dataset dir', required = True)
     parser.add_argument('--ckpt_dir', help = 'Checkpoints dir to load trained model from', required = True)
     parser.add_argument('--batch_size', help = 'Batch size', type = int, default = 32)
+    parser.add_argument('--lr', help = 'Learning rate', type = float, default = 0.0001)
     parser.add_argument('--num_layers', help = 'Seq2Seq layers number', type = int, default = 3)
     parser.add_argument('--emb_dim', help = 'Embded size', type = int, default = 1024)
 

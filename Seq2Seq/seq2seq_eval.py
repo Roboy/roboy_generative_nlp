@@ -41,7 +41,8 @@ def evaluate():
                             yvocab_size = yvocab_size,
                             ckpt_path = FLAGS.ckpt_dir,
                             emb_dim = FLAGS.emb_dim,
-                            num_layers = FLAGS.num_layers)
+                            num_layers = FLAGS.num_layers,
+                            lr = FLAGS.lr)
 
     # load trained model from latest checkpoint
     files = glob.glob(os.path.join(FLAGS.ckpt_dir, '*'))
@@ -62,8 +63,8 @@ def evaluate():
     # print predictions
     replies = []
     for ii, oi in zip(input_.T, predicted):
-        q = data_utils.decode(sequence = ii, lookup = metadata['idx2w'], separator = ' ')
-        decoded = data_utils.decode(sequence = oi, lookup = metadata['idx2w'], separator = ' ').split(' ')
+        q = data_utils.decode(ii, metadata['idx2w'], separator = ' ')
+        decoded = data_utils.decode(oi, metadata['idx2w'], separator = ' ').split(' ')
 
         if decoded.count('unk') == 0:
             if decoded not in replies:
@@ -85,6 +86,7 @@ if __name__ == '__main__':
     parser.add_argument('--dataset_dir', help = 'Proccesed dataset dir', required = True)
     parser.add_argument('--ckpt_dir', help = 'Checkpoints dir to load trained model from', required = True)
     parser.add_argument('--batch_size', help = 'Batch size', type = int, default = 32)
+    parser.add_argument('--lr', help = 'Learning rate', type = float, default = 0.0001)
     parser.add_argument('--num_layers', help = 'Seq2Seq layers number', type = int, default = 3)
     parser.add_argument('--emb_dim', help = 'Embded size', type = int, default = 1024)
 

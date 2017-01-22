@@ -40,7 +40,6 @@ def train():
                             ckpt_path = FLAGS.ckpt_dir,
                             emb_dim = FLAGS.emb_dim,
                             num_layers = FLAGS.num_layers,
-                            epochs = FLAGS.epochs,
                             lr = FLAGS.lr)
 
     # generate batches (data is alread shuffled no need

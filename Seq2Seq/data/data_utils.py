@@ -27,7 +27,7 @@ def load_data(path = ''):
     """
 
     # read data control dictionaries
-    with open(path + 'metadata.pkl', 'rb') as f:
+    with open(os.path.join(path, 'metadata.pkl'), 'rb') as f:
         metadata = pickle.load(f)
 
     # read numpy arrays
@@ -113,9 +113,7 @@ def encode(text, lookup, maxlen):
     """
 
     filtered  = data_preprocess.filter_line(text)
-    print(filtered)
     tokenized = [w.strip() for w in filtered.split(' ') if w]
-    print(tokenized)
 
     indices = []
     for word in tokenized:
