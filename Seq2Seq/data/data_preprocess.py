@@ -101,7 +101,7 @@ def filter_unk(qtokenized, atokenized, w2idx):
         unk_count_q = len([ w for w in qline if w not in w2idx ])
         unk_count_a = len([ w for w in aline if w not in w2idx ])
 
-        if unk_count_a <= 2:
+        if unk_count_a == 0:
             if unk_count_q > 0:
                 if unk_count_q / len(qline) > 0.2:
                     pass
