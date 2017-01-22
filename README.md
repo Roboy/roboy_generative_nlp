@@ -9,7 +9,6 @@ Code for reproducing main results in the paper [A Neural Conversational Model](h
 - [TensorFlow 0.12 version](https://www.tensorflow.org/get_started/os_setup)
 - In addition, please `pip install -r requirements.txt` to install the following packages:
     - `nltk`
-    - `itertools`
     - `pickle`
 
 
