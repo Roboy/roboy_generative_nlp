@@ -63,12 +63,12 @@ def predict():
         if user_message == "exit":
             break
 
-        encoded_message = data_utils.encode(text = user_message, lookup = metadata['w2idx'], maxlen = int(metadata['q_max']))
-        encoded_message = np.array(encoded_message).reshape((len(encoded_message), 1))
-
-        response = model.predict(sess, encoded_message)
-
-        decoded_response = data_utils.decode(sequence = response[0], lookup = metadata['idx2w'], separator = ' ')
+        # encode input message
+        encoded_message  = data_utils.encode(user_message, metadata['w2idx'], int(metadata['q_max']))
+        encoded_message  = np.array(encoded_message).reshape((len(encoded_message), 1))
+        # decode output response
+        response         = model.predict(sess, encoded_message)
+        decoded_response = data_utils.decode(response[0], metadata['idx2w'])
 
         print(u"< %s" % decoded_response)
 

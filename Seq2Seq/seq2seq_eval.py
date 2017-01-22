@@ -53,7 +53,7 @@ def evaluate():
         return
 
     # generate test batches
-    test_batch_gen  = data_utils.rand_batch_gen(testX, testY, FLAGS.batch_size)
+    test_batch_gen  = data_utils.batch_gen(testX, testY, FLAGS.batch_size)
 
     # predict output to current batch
     input_ = test_batch_gen.next()[0]

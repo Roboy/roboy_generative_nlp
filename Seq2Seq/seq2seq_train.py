@@ -8,6 +8,8 @@
 import tensorflow as tf
 import numpy as np
 import argparse
+import glob
+import os
 
 from data import data_utils
 import seq2seq
@@ -37,15 +39,27 @@ def train():
                             yvocab_size = yvocab_size,
                             ckpt_path = FLAGS.ckpt_dir,
                             emb_dim = FLAGS.emb_dim,
-                            num_layers = FLAGS.num_layers)
+                            num_layers = FLAGS.num_layers,
+                            epochs = FLAGS.epochs,
+                            lr = FLAGS.lr)
 
-    # generate random batches
-    val_batch_gen   = data_utils.rand_batch_gen(validX, validY, FLAGS.batch_size)
-    train_batch_gen = data_utils.rand_batch_gen(trainX, trainY, FLAGS.batch_size)
+    # generate batches (data is alread shuffled no need
+    # to call rand_batch_gen as it takes more time)
+    val_batch_gen   = data_utils.batch_gen(validX, validY, FLAGS.batch_size)
+    train_batch_gen = data_utils.batch_gen(trainX, trainY, FLAGS.batch_size)
 
-    # load latest checkpoint if any and train
-    sess = model.restore_last_session()
-    sess = model.train(train_batch_gen, val_batch_gen)
+    # load latest checkpoint if any
+    files = glob.glob(os.path.join(FLAGS.ckpt_dir, '*'))
+
+    if len(files) is not 0:
+        sess = model.restore_last_session()
+    else:
+        print('[WARNING ]\tNo checkpoints found. Starting from scratch')
+        sess  = None
+
+    # calculate number of steps and train
+    steps = FLAGS.epochs * (len(trainX) / FLAGS.batch_size)
+    model.train(train_batch_gen, val_batch_gen, steps, sess = sess)
 
 
 def main():
@@ -64,7 +78,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Train seq2seq model given the processed dataset')
     parser.add_argument('--dataset_dir', help = 'Proccesed dataset dir', required = True)
     parser.add_argument('--ckpt_dir', help = 'Checkpoints dir', required = True)
-    parser.add_argument('--batch_size', help = 'Batch size', type = int, default = 32)
+    parser.add_argument('--batch_size', help = 'Batch size', type = int, default = 1)
+    parser.add_argument('--epochs', help = 'Number of epochs', type = int, default = 500)
+    parser.add_argument('--lr', help = 'Learning rate', type = float, default = 0.0001)
     parser.add_argument('--num_layers', help = 'Seq2Seq layers number', type = int, default = 3)
     parser.add_argument('--emb_dim', help = 'Embded size', type = int, default = 1024)
 
