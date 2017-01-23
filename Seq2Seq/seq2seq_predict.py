@@ -84,8 +84,8 @@ def main():
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description = 'Predict seq2seq model given the processed dataset with cmd')
-    parser.add_argument('--dataset_dir', help = 'Proccesed dataset dir', required = True)
-    parser.add_argument('--ckpt_dir', help = 'Checkpoints dir to load trained model from', required = True)
+    parser.add_argument('--dataset_dir', help = 'Proccesed dataset dir', default = '../Datasets/twitter/processed/')
+    parser.add_argument('--ckpt_dir', help = 'Checkpoints dir to load trained model from', default = '../Datasets/twitter/checkpoints/')
     parser.add_argument('--batch_size', help = 'Batch size', type = int, default = 32)
     parser.add_argument('--lr', help = 'Learning rate', type = float, default = 0.0001)
     parser.add_argument('--num_layers', help = 'Seq2Seq layers number', type = int, default = 3)
