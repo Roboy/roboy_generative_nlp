@@ -77,7 +77,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Train seq2seq model given the processed dataset')
     parser.add_argument('--dataset_dir', help = 'Proccesed dataset dir', required = True)
     parser.add_argument('--ckpt_dir', help = 'Checkpoints dir', required = True)
-    parser.add_argument('--batch_size', help = 'Batch size', type = int, default = 32)
+    parser.add_argument('--batch_size', help = 'Batch size', type = int, default = 16)
     parser.add_argument('--epochs', help = 'Number of epochs', type = int, default = 500)
     parser.add_argument('--lr', help = 'Learning rate', type = float, default = 0.0001)
     parser.add_argument('--num_layers', help = 'Seq2Seq layers number', type = int, default = 3)
