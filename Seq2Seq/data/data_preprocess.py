@@ -275,7 +275,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Process and filter Q&A line by line to ids sequences')
     parser.add_argument('--file_path', help = 'Path to file', required = True)
     parser.add_argument('--output_dir', help = 'Output dir', required = True)
-    parser.add_argument('--vocab_size', help = 'Vocab size', type = int, default = 20000)
+    parser.add_argument('--vocab_size', help = 'Vocab size', type = int, default = 8000)
     parser.add_argument('--q_max_size', help = 'Question max size', type = int, default = 25)
     parser.add_argument('--q_min_size', help = 'Question min size', type = int, default = 2)
     parser.add_argument('--a_max_size', help = 'Answer max size', type = int, default = 15)
