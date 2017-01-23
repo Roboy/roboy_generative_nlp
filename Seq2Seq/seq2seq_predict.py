@@ -13,11 +13,44 @@ import argparse
 import os
 import glob
 import sys
+import wget
+import tarfile
 
 from data import data_utils
 import seq2seq
 
 FLAGS = None
+
+
+def maybe_download_and_extract(ckpt_dir):
+    """
+    Downloads and extracts twitter checkpoints
+    ----------
+    Args:
+        output_dir: directory where checkpoints are saved
+    """
+
+    if not tf.gfile.Exists(ckpt_dir):
+        tf.gfile.MakeDirs(ckpt_dir)
+
+    checkpoints = glob.glob(os.path.join(ckpt_dir, '*'))
+
+    if checkpoints:
+        return;
+
+    urls = ['https://transfer.sh/12XXye/twitter-checkpoint.tar.gz']
+
+    print('[INFO    ]\tNo train checkpoints found. Downloading them in %s' % ckpt_dir)
+    if len(urls) > 0:
+        for url in urls:
+            filepath = os.path.join(ckpt_dir, 'tmp')
+            wget.download(url, out = filepath)
+            tar = tarfile.open(filepath)
+            tar.extractall(path = ckpt_dir)
+            tar.close()
+            os.remove(filepath)
+
+        print('\n[INFO    ]\tTwitter checkpoint downloaded successfully')
 
 
 def predict():
@@ -78,6 +111,7 @@ def main():
     Predict seq2seq
     """
 
+    maybe_download_and_extract(FLAGS.ckpt_dir)
     predict()
 
 
