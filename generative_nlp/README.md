@@ -1,7 +1,7 @@
 # Generative NLP
 Code for reproducing main results in the paper [A Neural Conversational Model](http://papers.nips.cc/paper/5346-sequence-to-sequence-learning-with-neural-networks.pdf) to build a conversational chat bot using seq2seq model.
 
-<img src="Images/seq2seq.png" width="800px"/>
+<img src="include/Images/seq2seq.png" width="800px"/>
 
 
 ### Dependencies
