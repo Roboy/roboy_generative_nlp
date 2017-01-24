@@ -138,23 +138,26 @@ class GNLP():
 
             # print predictions
             replies = []
+            # single_rep = ''
             for ii, oi in zip(input_.T, predicted):
+                # single_rep = ''
                 q = data_utils.decode(ii, self.metadata['idx2w'], separator = ' ')
                 decoded = data_utils.decode(oi, self.metadata['idx2w'], separator = ' ').split(' ')
 
                 if decoded.count('unk') == 0:
                     if decoded not in replies:
                         print('q : [{0}];\na : [{1}]\n'.format(q, ' '.join(decoded)))
-                        for reply in decoded:
-                            replies.append(str(decoded[0]))
+                        replies.append(decoded)
+                        # for reply in decoded:
+                        #     single_rep += ' ' + reply
+                        # replies.append(single_rep)
             if len(replies):
-                print(replies)
-                return True, replies
+                return True
             else:
-                return False,[]
+                return False
         else:
             rospy.logerr('[ERROR   ]\tNo model loaded. Load your model first to call the service.')
-            return False,[]
+            return False
 
     def eval_server(self):
         s = rospy.Service('roboy/gnlp_eval', seq2seq_eval, self.evaluate)
@@ -175,7 +178,7 @@ class GNLP():
             encoded_message  = data_utils.encode(user_message, self.metadata['w2idx'], int(self.metadata['q_max']))
             encoded_message  = np.array(encoded_message).reshape((len(encoded_message), 1))
             # # decode output response
-            response         = model.predict(sess, encoded_message)
+            response         = self.model.predict(self.sess, encoded_message)
             decoded_response = data_utils.decode(response[0], self.metadata['idx2w'], separator = ' ')
             rospy.loginfo(u"< %s" % decoded_response)
             print(decoded_response)

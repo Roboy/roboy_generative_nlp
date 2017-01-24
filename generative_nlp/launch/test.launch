@@ -2,13 +2,13 @@
 <launch>
 
   <!-- Parameter server -->
-	<param name="seq2seq/dataset_dir"  value="$(find generative_nlp)/include/Datasets/squad/processed" type="str"/>
-	<param name="seq2seq/ckpt_dir" value="$(find generative_nlp)/include/Datasets/squad/checkpoints" type="str"/>
-	<param name="seq2seq/batch_size"  value="1" type="int"/>
-	<param name="seq2seq/epochs"  value="100" type="int"/>
+	<param name="seq2seq/dataset_dir"  value="$(find generative_nlp)/include/Datasets/twitter/processed" type="str"/>
+	<param name="seq2seq/ckpt_dir" value="$(find generative_nlp)/include/Datasets/twitter/checkpoints" type="str"/>
+	<param name="seq2seq/batch_size"  value="16" type="int"/>
+	<param name="seq2seq/epochs"  value="500" type="int"/>
 	<param name="seq2seq/lr"  value="0.0001" type="double" />
-	<param name="seq2seq/num_layers"  value="2" type="int" />
-	<param name="seq2seq/emb_dim"  value="512" type="int" />
+	<param name="seq2seq/num_layers"  value="3" type="int" />
+	<param name="seq2seq/emb_dim"  value="1024" type="int" />
 
   <!-- Training server -->
 	<node name="GNLP" pkg="generative_nlp" type="seq2seq_ros.py" output="screen" />
