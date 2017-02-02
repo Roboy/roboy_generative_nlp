@@ -202,14 +202,13 @@ class Seq2Seq(object):
         for i in range(steps):
             try:
                 self.train_batch(sess, train_set)
-                if i and i % (steps//100) == 0:
+                if i and i % 1000 == 0:
                     # save model to disk
                     saver.save(sess, os.path.join(self.ckpt_path, self.model_name) + '.ckpt', global_step = i)
                     # evaluate to get validation loss
                     val_loss = self.eval_batches(sess, valid_set, 16)
                     # print stats
-                    print('[PROGRESS]\tModel saved to disk at iteration #{}'.format(i))
-                    print('[PROGRESS]\tVal loss : {0:.6f}'.format(val_loss))
+                    print('[PROGRESS]\tLoss : %f, Model saved to disk at iteration #%d' % (val_loss, i))
             except KeyboardInterrupt:
                 print('[WARNING ]\tInterrupted by user at iteration {}'.format(i))
                 self.session = sess
