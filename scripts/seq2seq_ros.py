@@ -167,6 +167,7 @@ class GNLP():
         if self.model == None and LOAD_MODEL:
             rospy.loginfo('[INFO ]\tLoading model')
             model_loaded, self.sess = self.load()
+            
         else:
             model_loaded = True
         if model_loaded:  

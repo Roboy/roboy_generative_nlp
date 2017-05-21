@@ -233,6 +233,9 @@ class Seq2Seq(object):
             print('[INFO    ]\tRestoring latest session..')
             saver.restore(sess, ckpt.model_checkpoint_path)
 
+        init = tf.initialize_all_variables()
+        sess.run(init)
+        
         # return to user
         return sess
 
@@ -251,6 +254,7 @@ class Seq2Seq(object):
 
         feed_dict = {self.enc_ip[t]: x[t] for t in range(self.xseq_len)}
         feed_dict[self.keep_prob] = 1.
+        init = tf.global_variables_initializer()
         dec_op_v = sess.run(self.decode_outputs_test, feed_dict)
         # dec_op_v is a list; also need to transpose 0,1 indices 
         # interchange batch_size and timesteps dimensions
