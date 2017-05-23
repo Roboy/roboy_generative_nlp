@@ -38,7 +38,7 @@ def maybe_download_and_extract(ckpt_dir):
     if checkpoints:
         return;
 
-    urls = ['https://transfer.sh/12XXye/twitter-checkpoint.tar.gz']
+    urls = ['https://transfer.sh/9En0w/twitter-checkpoint.tar.gz']
 
     print('[INFO    ]\tNo train checkpoints found. Downloading them in %s' % ckpt_dir)
     if len(urls) > 0:
