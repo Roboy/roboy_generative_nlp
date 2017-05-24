@@ -28,7 +28,7 @@ Code for reproducing main results in the paper [A Neural Conversational Model](h
     The data is filtered by removing too long or too short sequences, only keeping the most frequent vocab size(8000) words from the data. the data is saved as q ids & a ids & meta data holding words.
 
 3. Optional: to get trained model, download and extract:
-    - [twitter checkpoint](https://www.dropbox.com/s/bc01cmtnidkygln/twitter_checkpoint.zip?dl=0)
+    - [twitter checkpoint](https://transfer.sh/9En0w/twitter-checkpoint.tar.gz)
 
 ### Testing the package
 - To test the package build the workspace:
