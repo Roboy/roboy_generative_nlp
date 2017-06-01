@@ -190,7 +190,7 @@ class GNLP():
             return False,''
 
     def predict_server(self):
-        s = rospy.Service('roboy/gnlp_predict', GenerateAnswer, self.predict)
+        s = rospy.Service('/roboy/cognition/gnlp/predict', GenerateAnswer, self.predict)
         rospy.loginfo("Prediction service ready to be called.")
 
 def main():
