@@ -199,7 +199,7 @@ def main():
     """
     if not tf.gfile.Exists(ckpt_dir):
         tf.gfile.MakeDirs(ckpt_dir)
-    rospy.init_node('GNLP')
+    rospy.init_node('roboy_generative_nlp')
     node = GNLP()
     while not rospy.is_shutdown():
         node.train_server()
