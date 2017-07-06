@@ -7,69 +7,49 @@
 
 from __future__ import print_function
 
-import tensorflow as tf
-import numpy as np
-import argparse
 import os
-import glob
+import sys
+import tensorflow as tf
 
-from data import data_utils
-import seq2seq
+from config import params_setup
+from lib import data_utils
+from lib.seq2seq_model_utils import create_model, get_predicted_sentence
 
 FLAGS = None
 
 
-def evaluate():
+def evaluate(args):
     """
     Load processed dataset and trained model for evalutation:
     """
 
-    # load data from pickle and npy files
-    metadata, idx_q, idx_a = data_utils.load_data(FLAGS.dataset_dir)
-    (trainX, trainY), (testX, testY), (validX, validY) = data_utils.split_dataset(idx_q, idx_a)
+    with tf.Session() as sess:
+        # Create model and load parameters.
+        args.batch_size = 1  # We decode one sentence at a time.
+        model = create_model(sess, args)
 
-    # parameters 
-    xseq_len    = trainX.shape[-1]
-    yseq_len    = trainY.shape[-1]
-    xvocab_size = len(metadata['idx2w'])  
-    yvocab_size = xvocab_size
+        # Load vocabularies.
+        vocab_path = os.path.join(
+            args.data_dir, "vocab%d.in" % args.vocab_size)
+        vocab, rev_vocab = data_utils.initialize_vocabulary(vocab_path)
 
-    # build seq2seq model
-    model = seq2seq.Seq2Seq(xseq_len = xseq_len,
-                            yseq_len = yseq_len,
-                            xvocab_size = xvocab_size,
-                            yvocab_size = yvocab_size,
-                            ckpt_path = FLAGS.ckpt_dir,
-                            emb_dim = FLAGS.emb_dim,
-                            num_layers = FLAGS.num_layers,
-                            lr = FLAGS.lr)
+        # Decode from standard input.
+        sys.stdout.write("> ")
+        sys.stdout.flush()
+        sentence = sys.stdin.readline()
 
-    # load trained model from latest checkpoint
-    files = glob.glob(os.path.join(FLAGS.ckpt_dir, '*'))
+        while sentence:
+            predicted_sentence = get_predicted_sentence(
+                args, sentence, vocab, rev_vocab, model, sess)
+            if isinstance(predicted_sentence, list):
+                for sent in predicted_sentence:
+                    print("  (%s) -> %s" % (sent['prob'], sent['dec_inp']))
+            else:
+                print(sentence, ' -> ', predicted_sentence)
 
-    if len(files) is not 0:
-        sess = model.restore_last_session()
-    else:
-        print('[ERROR   ]\tNo checkpoints found to load trained model from')
-        return
-
-    # generate test batches
-    test_batch_gen  = data_utils.batch_gen(testX, testY, FLAGS.batch_size)
-
-    # predict output to current batch
-    input_ = test_batch_gen.next()[0]
-    predicted = model.predict(sess, input_)
-
-    # print predictions
-    replies = []
-    for ii, oi in zip(input_.T, predicted):
-        q = data_utils.decode(ii, metadata['idx2w'], separator = ' ')
-        decoded = data_utils.decode(oi, metadata['idx2w'], separator = ' ').split(' ')
-
-        if decoded.count('unk') == 0:
-            if decoded not in replies:
-                print('q : [{0}];\na : [{1}]\n'.format(q, ' '.join(decoded)))
-                replies.append(decoded)
+            sys.stdout.write("> ")
+            sys.stdout.flush()
+            sentence = sys.stdin.readline()
 
 
 def main():
@@ -77,19 +57,11 @@ def main():
     Evaluate seq2seq
     """
 
-    evaluate()
+    evaluate(FLAGS)
 
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(description = 'Evaluate seq2seq model given the processed dataset')
-    parser.add_argument('--dataset_dir', help = 'Proccesed dataset dir', required = True)
-    parser.add_argument('--ckpt_dir', help = 'Checkpoints dir to load trained model from', required = True)
-    parser.add_argument('--batch_size', help = 'Batch size', type = int, default = 16)
-    parser.add_argument('--lr', help = 'Learning rate', type = float, default = 0.0001)
-    parser.add_argument('--num_layers', help = 'Seq2Seq layers number', type = int, default = 3)
-    parser.add_argument('--emb_dim', help = 'Embded size', type = int, default = 1024)
-
-    FLAGS, unparsed = parser.parse_known_args()
-
+    FLAGS = params_setup()
     main()
+

@@ -5,84 +5,154 @@
 # Train seq2seq with given processed dataset                     #
 # ============================================================== #
 
-import tensorflow as tf
-import numpy as np
-import argparse
-import glob
-import os
+from __future__ import print_function
 
-from data import data_utils
-import seq2seq
+import sys
+import os
+import math
+import time
+import argparse
+import shutil
+import numpy as np
+import tensorflow as tf
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from six.moves import xrange
+from datetime import datetime
+from lib import seq2seq_model_utils, data_utils
+from config import params_setup
 
 FLAGS = None
 
 
-def train():
+def setup_workpath(workspace):
     """
-    Load processed dataset and train the model:
+    Setting dataset path:
     """
 
-    # load data from pickle and npy files
-    metadata, idx_q, idx_a = data_utils.load_data(FLAGS.dataset_dir)
-    (trainX, trainY), (testX, testY), (validX, validY) = data_utils.split_dataset(idx_q, idx_a)
+    for p in ['data', 'checkpoints']:
+        wp = "%s/%s" % (workspace, p)
+        if not os.path.exists(wp):
+            os.mkdir(wp)
 
-    # parameters 
-    xseq_len    = trainX.shape[-1]
-    yseq_len    = trainY.shape[-1]
-    xvocab_size = len(metadata['idx2w'])  
-    yvocab_size = xvocab_size
+    data_dir = "%s/data" % (workspace)
 
-    # build seq2seq model
-    model = seq2seq.Seq2Seq(xseq_len = xseq_len,
-                            yseq_len = yseq_len,
-                            xvocab_size = xvocab_size,
-                            yvocab_size = yvocab_size,
-                            ckpt_path = FLAGS.ckpt_dir,
-                            emb_dim = FLAGS.emb_dim,
-                            num_layers = FLAGS.num_layers,
-                            lr = FLAGS.lr)
+    # training data
+    if not os.path.exists("%s/chat.in" % data_dir):
+        n = 0
+        f_chat = open("%s/raw/chat.txt" % data_dir, 'r')
+        f_train = open("%s/chat.in" % data_dir, 'w')
+        f_dev = open("%s/chat_test.in" % data_dir, 'w')
+        for line in f_chat:
+            f_train.write(line)
+            if n < 10000:
+                f_dev.write(line)
+                n += 1
 
-    # generate batches (data is alread shuffled no need
-    # to call rand_batch_gen as it takes more time)
-    val_batch_gen   = data_utils.batch_gen(validX, validY, FLAGS.batch_size)
-    train_batch_gen = data_utils.batch_gen(trainX, trainY, FLAGS.batch_size)
 
-    # load latest checkpoint if any
-    files = glob.glob(os.path.join(FLAGS.ckpt_dir, '*'))
+def train(args):
+    """
+    Processed dataset and train the model:
+    """
 
-    if len(files) is not 0:
-        sess = model.restore_last_session()
-    else:
-        print('[WARNING ]\tNo checkpoints found. Starting from scratch')
-        sess  = None
+    print("[%s] Preparing dialog data in %s" % (args.model_name, args.data_dir))
+    setup_workpath(workspace=args.workspace)
+    train_data, dev_data, _ = data_utils.prepare_dialog_data(args.data_dir, args.vocab_size)
 
-    # calculate number of steps and train
-    steps = FLAGS.epochs * (len(trainX) / FLAGS.batch_size)
-    model.train(train_batch_gen, val_batch_gen, steps, sess = sess)
+    if args.reinforce_learn:
+        args.batch_size = 1  # We decode one sentence at a time.
+    gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=args.gpu_usage)
+
+    with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
+
+        # Create model.
+        print("Creating %d layers of %d units." % (args.num_layers, args.size))
+        model = seq2seq_model_utils.create_model(sess, args, forward_only=False)
+
+        # Read data into buckets and compute their sizes.
+        print("Reading development and training data (limit: %d)." % args.max_train_data_size)
+        dev_set = data_utils.read_data(dev_data, args.buckets, reversed=args.rev_model)
+        train_set = data_utils.read_data(train_data, args.buckets, args.max_train_data_size, reversed=args.rev_model)
+        train_bucket_sizes = [len(train_set[b]) for b in xrange(len(args.buckets))]
+        train_total_size = float(sum(train_bucket_sizes))
+
+        # A bucket scale is a list of increasing numbers from 0 to 1 that we'll use
+        # to select a bucket. Length of [scale[i], scale[i+1]] is proportional to
+        # the size if i-th training bucket, as used later.
+        train_buckets_scale = [sum(train_bucket_sizes[:i + 1]) / train_total_size
+                               for i in xrange(len(train_bucket_sizes))]
+
+        # This is the training loop.
+        step_time, loss = 0.0, 0.0
+        current_step = 0
+        previous_losses = []
+
+        # Load vocabularies.
+        vocab_path = os.path.join(args.data_dir, "vocab%d.in" % args.vocab_size)
+        vocab, rev_vocab = data_utils.initialize_vocabulary(vocab_path)
+
+        while True:
+            # Choose a bucket according to data distribution. We pick a random number
+            # in [0, 1] and use the corresponding interval in train_buckets_scale.
+            random_number_01 = np.random.random_sample()
+            bucket_id = min([i for i in xrange(len(train_buckets_scale))
+                             if train_buckets_scale[i] > random_number_01])
+
+            # Get a batch and make a step.
+            start_time = time.time()
+            encoder_inputs, decoder_inputs, target_weights = model.get_batch(
+                train_set, bucket_id)
+
+            if args.reinforce_learn:
+                _, step_loss, _ = model.step_rf(args, sess, encoder_inputs, decoder_inputs,
+                                                target_weights, bucket_id, rev_vocab=rev_vocab)
+            else:
+                _, step_loss, _ = model.step(sess, encoder_inputs, decoder_inputs,
+                                             target_weights, bucket_id, forward_only=False, force_dec_input=True)
+
+            step_time += (time.time() - start_time) / args.steps_per_checkpoint
+            loss += step_loss / args.steps_per_checkpoint
+            current_step += 1
+
+            # Once in a while, we save checkpoint, print statistics, and run evals.
+            if (current_step % args.steps_per_checkpoint == 0) and (not args.reinforce_learn):
+                # Print statistics for the previous epoch.
+                perplexity = math.exp(loss) if loss < 300 else float('inf')
+                print("global step %d learning rate %.4f step-time %.2f perplexity %.2f @ %s" %
+                      (model.global_step.eval(), model.learning_rate.eval(), step_time, perplexity, datetime.now()))
+
+                # Decrease learning rate if no improvement was seen over last 3 times.
+                if len(previous_losses) > 2 and loss > max(previous_losses[-3:]):
+                    sess.run(model.learning_rate_decay_op)
+
+                previous_losses.append(loss)
+
+                # Save checkpoint and zero timer and loss.
+                checkpoint_path = os.path.join(args.model_dir, "model.ckpt")
+                model.saver.save(sess, checkpoint_path, global_step=model.global_step)
+                step_time, loss = 0.0, 0.0
+
+                # Run evals on development set and print their perplexity.
+                for bucket_id in xrange(len(args.buckets)):
+                    encoder_inputs, decoder_inputs, target_weights = model.get_batch(dev_set, bucket_id)
+                    _, eval_loss, _ = model.step(sess, encoder_inputs, decoder_inputs,
+                                                 target_weights, bucket_id, forward_only=True, force_dec_input=False)
+
+                    eval_ppx = math.exp(eval_loss) if eval_loss < 300 else float('inf')
+                    print("  eval: bucket %d perplexity %.2f" % (bucket_id, eval_ppx))
+
+                sys.stdout.flush()
 
 
 def main():
     """
-    Train seq2seq
+    train seq2seq
     """
 
-    if not tf.gfile.Exists(FLAGS.ckpt_dir):
-        tf.gfile.MakeDirs(FLAGS.ckpt_dir)
-
-    train()
+    train(FLAGS)
 
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(description = 'Train seq2seq model given the processed dataset')
-    parser.add_argument('--dataset_dir', help = 'Proccesed dataset dir', required = True)
-    parser.add_argument('--ckpt_dir', help = 'Checkpoints dir', required = True)
-    parser.add_argument('--batch_size', help = 'Batch size', type = int, default = 16)
-    parser.add_argument('--epochs', help = 'Number of epochs', type = int, default = 500)
-    parser.add_argument('--lr', help = 'Learning rate', type = float, default = 0.0001)
-    parser.add_argument('--num_layers', help = 'Seq2Seq layers number', type = int, default = 3)
-    parser.add_argument('--emb_dim', help = 'Embded size', type = int, default = 1024)
-
-    FLAGS, unparsed = parser.parse_known_args()
-
+    FLAGS = params_setup()
     main()

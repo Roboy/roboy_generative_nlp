@@ -1,0 +1,17 @@
+#!/bin/bash
+
+#=============================
+#   Download Checkpoints
+#=============================
+if [ ! -d Datasets/twitter/ ]; then
+    wget https://github.com/Roboy/roboy_generative_nlp/raw/datasets/twitter/twitter.tar.gz.aa
+    wget https://github.com/Roboy/roboy_generative_nlp/raw/datasets/twitter/twitter.tar.gz.ab
+    cat twitter.tar.gz.* > twitter.tar.gz
+    tar -zxvf twitter.tar.gz -C Datasets/
+    rm twitter.tar.gz*
+fi
+
+#=============================
+#   Run twitter chat
+#=============================
+python Seq2Seq/seq2seq_eval.py --model_name twitter --vocab_size 100000 --size 128 --beam_size 1 --antilm 0.7 --work_root Datasets
