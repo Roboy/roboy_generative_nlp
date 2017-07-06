@@ -2,10 +2,10 @@
 Code for reproducing main results in the paper [A Neural Conversational Model](http://papers.nips.cc/paper/5346-sequence-to-sequence-learning-with-neural-networks.pdf) to build a conversational chat bot using seq2seq model.
 
 This model extends seq2seq with these features:
-1 - Reinforcment learning for more coherent dialouge instead of 1-to-1 relpy.
-2 - Buckets while training to limit memory consumption
-3 - Beam search to avoid local minima resopnses (needs to be optimized)
-4 - Anti-langauge moddel to supress global solutions like "Thanks, ok" when uncertain.
+- Reinforcment learning for more coherent dialouge instead of 1-to-1 relpy.
+- Buckets while training to limit memory consumption
+- Beam search to avoid local minima resopnses (needs to be optimized)
+- Anti-langauge moddel to supress global solutions like "Thanks, ok" when uncertain.
 
 <img src="Images/seq2seq.png" width="800px"/>
 
