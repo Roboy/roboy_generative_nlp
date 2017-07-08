@@ -14,4 +14,4 @@ fi
 #=============================
 #   Run twitter chat
 #=============================
-python Seq2Seq/seq2seq_eval.py --model_name twitter --vocab_size 100000 --size 128 --beam_size 1 --antilm 0.7 --work_root Datasets
+python scripts/seq2seq_eval.py --model_name twitter --vocab_size 100000 --size 128 --beam_size 1 --antilm 0.7 --work_root Datasets
