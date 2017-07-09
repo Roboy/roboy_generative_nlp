@@ -1,0 +1,17 @@
+# /bin/bash
+export PYTHONPATH=
+export PATH=~/miniconda3/bin:$PATH
+
+conda create -n py35 python=3.5
+source activate python35
+
+pip install -r requirements.txt
+
+if [ ! -d Datasets/twitter/ ]; then
+    wget https://github.com/Roboy/roboy_generative_nlp/raw/datasets/twitter/twitter.tar.gz.aa
+    wget https://github.com/Roboy/roboy_generative_nlp/raw/datasets/twitter/twitter.tar.gz.ab
+    cat twitter.tar.gz.* > twitter.tar.gz
+    tar -zxvf twitter.tar.gz -C Datasets/
+    rm twitter.tar.gz*
+fi
+
