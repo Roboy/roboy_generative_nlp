@@ -1,0 +1,3 @@
+https://pypi.python.org/packages/b0/a6/a8b857c8b383c4a2a3dece8a3c0f86e9273b8fd7ce31528f8ac809fc5910/tensorflow-1.0.0-cp35-cp35m-manylinux1_x86_64.whl#md5=88f8b298a2efb3f2d236019c5dcc1220
+https://pypi.python.org/packages/89/2d/e6a8aa1cf062b8c5eb1b6bca1c3131e6e1f5bd25c829521a10a022a9864a/websockets-3.3-py33.py34.py35.py36-none-any.whl#md5=62a346e1516998a13c0dfd16503ede9f
+asyncio
