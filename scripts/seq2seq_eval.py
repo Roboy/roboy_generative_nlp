@@ -18,7 +18,7 @@ from lib.seq2seq_model_utils import create_model, get_predicted_sentence
 FLAGS = None
 
 
-def evaluate(args, sentence):
+def evaluate(args):
     """
     Load processed dataset and trained model for evalutation:
     """
@@ -33,26 +33,23 @@ def evaluate(args, sentence):
             args.data_dir, "vocab%d.in" % args.vocab_size)
         vocab, rev_vocab = data_utils.initialize_vocabulary(vocab_path)
 
-        predicted_sentence = get_predicted_sentence(
+        # Decode from standard input.
+        sys.stdout.write("> ")
+        sys.stdout.flush()
+        sentence = sys.stdin.readline()
+
+        while sentence:
+            predicted_sentence = get_predicted_sentence(
                 args, sentence, vocab, rev_vocab, model, sess)
-        # # Decode from standard input.
-        # sys.stdout.write("> ")
-        # sys.stdout.flush()
-        # # sentence = sys.stdin.readline()
+            if isinstance(predicted_sentence, list):
+                for sent in predicted_sentence:
+                    print("  (%s) -> %s" % (sent['prob'], sent['dec_inp']))
+            else:
+                print(sentence, ' -> ', predicted_sentence)
 
-        # while sentence:
-        #     predicted_sentence = get_predicted_sentence(
-        #         args, sentence, vocab, rev_vocab, model, sess)
-        #     if isinstance(predicted_sentence, list):
-        #         for sent in predicted_sentence:
-        #             print("  (%s) -> %s" % (sent['prob'], sent['dec_inp']))
-        #     else:
-        #         print(sentence, ' -> ', predicted_sentence)
-
-        #     sys.stdout.write("> ")
-        #     sys.stdout.flush()
-        #     sentence = sys.stdin.readline()
-        return predicted_sentence
+            sys.stdout.write("> ")
+            sys.stdout.flush()
+            sentence = sys.stdin.readline()
 
 
 def main():
