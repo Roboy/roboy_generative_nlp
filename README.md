@@ -12,7 +12,12 @@ This model extends seq2seq with these features:
 
 ### Dependencies
 - python 3.5
-- [TensorFlow 1.1 version](https://www.tensorflow.org/get_started/os_setup)
+- [TensorFlow 1.0 version](https://www.tensorflow.org/get_started/os_setup)
+- asyncio
+- websockets
+`
+pip install -r requirements.txt
+`
 
 
 ### Data
