@@ -15,6 +15,7 @@ This model extends seq2seq with these features:
 - [TensorFlow 1.0 version](https://www.tensorflow.org/get_started/os_setup)
 - asyncio
 - websockets
+
 `
 pip install -r requirements.txt
 `
