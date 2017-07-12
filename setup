@@ -2,7 +2,7 @@
 export PYTHONPATH=
 export PATH=~/miniconda3/bin:$PATH
 
-conda create -n py35 python=3.5
+conda create -n python35 python=3.5
 source activate python35
 
 pip install -r requirements.txt
