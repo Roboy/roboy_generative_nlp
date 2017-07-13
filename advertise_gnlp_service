@@ -4,5 +4,6 @@ export PATH=~/miniconda3/bin:$PATH
 
 source activate python35
 
+roscd roboy_generative_nlp
 cd scripts
 python gnlp_ros_srv.py
