@@ -16,9 +16,11 @@ This model extends seq2seq with these features:
 - asyncio
 - websockets
 
-`
-pip install -r requirements.txt
-`
+### Setup
+```
+chmod +x setup
+./setup
+```
 
 
 ### Data
@@ -48,16 +50,29 @@ pip install -r requirements.txt
 
 
 ### Evaluation
+
+#### Python Script
 - To evaluate Seq2Seq run `seq2seq_eval` passing model name
 
     ```
     python seq2seq_eval.py --model_name twitter and pass in params
     ```
 
+#### Bash script
 - Or simply run ./twitter_chat which will download the trained model and start the chatting interface. This model wasn't trained with reinforcment learning as the chat dataset is not dialouge.
 
     ```
     ./twitter_chat
+    ```
+#### ROS Service
+- Make sure `rosbridge_websocket` (port 9090) is running on the ROS master
+- In order to start the ROS node and service for answer generation call
+    ```
+    ./advertise_gnlp_service
+    ```
+- Call a service
+    ```
+    rosservice call /roboy/cognition/generative_nlp/answer "text_input: 'hello'"
     ```
 
 ### Papers
